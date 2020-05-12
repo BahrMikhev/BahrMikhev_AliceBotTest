@@ -27,6 +27,7 @@ logging.basicConfig(level=logging.INFO)
 # Такая запись говорит, что мы показали пользователю эти три подсказки.
 # Когда он откажется купить слона,
 # то мы уберем одну подсказку. Как будто что-то меняется :)
+animal = 'слон'
 sessionStorage = {}
 
 
@@ -60,6 +61,7 @@ def main():
 
 
 def handle_dialog(req, res):
+    global animal
     user_id = req['session']['user_id']
 
     if req['session']['new']:
@@ -96,13 +98,17 @@ def handle_dialog(req, res):
     ]:
         if r in req['request']['original_utterance'].lower():
             # Пользователь согласился, прощаемся.
-            res['response']['text'] = 'Слона можно найти на Яндекс.Маркете!'
-            res['response']['end_session'] = True
+            res['response']['text'] = f'{animal} можно найти на Яндекс.Маркете!'
+            if animal == 'слон':
+                res['response']['text'] += ' А теперь купи кролика!'
+                animal = 'кролик'
+            else:
+                res['response']['end_session'] = True
             return
 
     # Если нет, то убеждаем его купить слона!
     res['response']['text'] = \
-        f"Все говорят '{req['request']['original_utterance']}', а ты купи слона!"
+        f"Все говорят '{req['request']['original_utterance']}', а ты купи {animal}!"
     res['response']['buttons'] = get_suggests(user_id)
 
 
